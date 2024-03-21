@@ -1,4 +1,4 @@
-lexer grammar SYsU_lang;
+lexer grammar SYsULexer;
 
 Const : 'const';
 Int : 'int';
