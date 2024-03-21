@@ -4,7 +4,7 @@ set(STUDENT_ID "21307270")
 set(STUDENT_NAME "罗以彬")
 
 # 实验一的完成方式："flex"或"antlr"
-set(TASK1_WITH "flex")
+set(TASK1_WITH "antlr")
 
 # 实验二的完成方式："bison"或"antlr"
 set(TASK2_WITH "bison")
