@@ -84,7 +84,9 @@ class NodeHelper:
     def to_yaml(
         self, fp: TextIOWrapper, lv: int, key_to_add: list, inner_err_idx: list
     ) -> None:
-        fprint(fp, "\n>----------------------------对比开始----------------------------")
+        fprint(
+            fp, "\n>----------------------------对比开始----------------------------"
+        )
         ast0_cp = dict()
         ast1_cp = dict()
         for key in key_to_add:
@@ -103,7 +105,10 @@ class NodeHelper:
             inner_cp_idx = i + 1
         fprint(fp, "\n标准答案节点: \n" + yaml.dump(ast0_cp))
         fprint(fp, "\n用户答案节点: \n" + yaml.dump(ast1_cp))
-        fprint(fp, "\n<----------------------------对比结束----------------------------\n\n")
+        fprint(
+            fp,
+            "\n<----------------------------对比结束----------------------------\n\n",
+        )
         return
 
     def to_dot(self, fp: TextIOWrapper) -> None:
@@ -118,6 +123,18 @@ class NodeHelper:
         if value1 is None:
             level_output += "\n键 '" + key + "' 在用户答案节点内不存在"
             return False, level_output
+        if type(value0) is not type(value1):
+            level_output += "\n键 '" + key + "' 对应的值类型错误"
+            return False, level_output
+        if key == "type":
+            qualType0 = value0.get("qualType")
+            qualType1 = value1.get("qualType")
+            if qualType0 is None:
+                return True, level_output
+            if qualType1 is None or qualType0 != qualType1:
+                level_output += "\n键 '" + key + "' 的qualType对应值错误"
+                return False, level_output
+            return True, level_output
         if value0 != value1:
             level_output += "\n键 '" + key + "' 错误"
             return False, level_output
@@ -287,7 +304,9 @@ def check_ast(
         and key not in level2_kind
         and key not in key_ignore
     ]
+
     def check_inner():
+
         def goon_check_ast():
             for i in range(len(value0)):
                 son_node_helper = check_ast(
@@ -339,13 +358,14 @@ def check_ast(
         key_cor, level_app_output = node_helper.check_key(key, key_level)
         level_output += level_app_output
         if not key_cor:
+            node_helper.level1_correct = False
             key_err.append(key)
     if ast0.get("inner") is not None and ast0.get("kind") not in kind_initlist:
         inner_status = 0
         son_err_status = 1
         check_inner()
     # 输出 level_output
-    if level_output != "本节点情况 level 1: " and log_level >= 1:
+    if not node_helper.level1_correct and log_level >= 1:
         fprint(fp, level_output)
         node_helper.to_yaml(fp, key_level, key_err, inner_err_idx)
 
@@ -357,13 +377,14 @@ def check_ast(
         key_cor, level_app_output = node_helper.check_key(key, key_level)
         level_output += level_app_output
         if not key_cor:
+            node_helper.level2_correct = False
             key_err.append(key)
     if ast0.get("inner") is not None and ast0.get("kind") in kind_initlist:
         inner_status = 2
         son_err_status = 3
         check_inner()
     # 输出 level_output
-    if level_output != "本节点情况 level 2: " and log_level >= 2:
+    if not node_helper.level2_correct and log_level >= 2:
         fprint(fp, level_output)
         node_helper.to_yaml(fp, key_level, key_err, inner_err_idx)
 
@@ -375,13 +396,13 @@ def check_ast(
         key_cor, level_app_output = node_helper.check_key(key, key_level)
         level_output += level_app_output
         if not key_cor:
+            node_helper.level3_correct = False
             key_err.append(key)
     # 输出 level_output
-    if level_output != "本节点情况 level 3: " and log_level >= 3:
+    if not node_helper.level3_correct and log_level >= 3:
         fprint(fp, level_output)
         node_helper.to_yaml(fp, key_level, key_err, inner_err_idx)
     # new--------------------------------------------------------
-
     """# old--------------------------------------------------------
     # 遍历 ast0 的每一个键值对
     for key, value0 in ast0.items():
@@ -507,7 +528,7 @@ def score_one(
                 fprint(fp, "输出结果文件不存在：", judge_answer_path)
                 raise Error()
 
-            # 读取标准答案和输出结果
+            # 读取标准答案
             try:
                 with open(std_answer_path, "r") as f:
                     std_answer = json.load(f)
@@ -516,15 +537,6 @@ def score_one(
                 output = "标准答案文件损坏"
                 fprint(fp, "标准答案文件损坏：", std_answer_path)
                 raise Error(e)
-            try:
-                with open(judge_answer_path, "r") as f:
-                    judge_answer = json.load(f)
-                    gc.collect()
-            except Exception as e:
-                output = "输出结果文件损坏"
-                fprint(fp, "输出结果文件损坏：", judge_answer_path)
-                raise Error(e)
-
             # 转化成 yaml 格式输出
             try:
                 NodeHelper.filter_ast(std_answer)
@@ -534,6 +546,17 @@ def score_one(
                 output = "转化为yaml失败"
                 fprint(fp, "转化为yaml失败")
                 raise Error(e)
+
+            # 读取输出结果
+            try:
+                with open(judge_answer_path, "r") as f:
+                    judge_answer = json.load(f)
+                    gc.collect()
+            except Exception as e:
+                output = "输出结果文件损坏"
+                fprint(fp, "输出结果文件损坏：", judge_answer_path)
+                raise Error(e)
+            # 转化成 yaml 格式输出
             try:
                 NodeHelper.filter_ast(judge_answer)
                 with open(cases_helper.of_case_bindir("output.yaml", case), "w") as f:
@@ -553,17 +576,18 @@ def score_one(
             fprint(fp, "生成树中level1节点总数:" + f"{ast_helper.level1_all_count}")
             fprint(
                 fp,
-                "kind, name, value正确的节点数:" + f"{ast_helper.level1_correct_count}",
+                "level1: kind, name, value正确:"
+                + f"{ast_helper.level1_correct_count}/{ast_helper.level1_all_count}",
             )
             fprint(
                 fp,
-                "type, InitListExpr生成树正确的节点数:"
-                + f"{ast_helper.level2_correct_count}",
+                "level2: type, InitListExpr生成树正确:"
+                + f"{ast_helper.level2_correct_count}/{ast_helper.all_count}",
             )
             fprint(
                 fp,
-                "除id外其他属性全部正确的节点数:"
-                + f"{ast_helper.level3_correct_count}",
+                "level3: 除id外其他属性全部正确:"
+                + f"{ast_helper.level3_correct_count}/{ast_helper.all_count}",
             )
             score = max_score * (
                 ast_helper.level1_correct_count * 0.6 / ast_helper.level1_all_count
