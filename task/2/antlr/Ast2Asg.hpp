@@ -30,6 +30,10 @@ public:
   std::pair<TypeExpr*, std::string> operator()(ast::DeclaratorContext* ctx,
                                                TypeExpr* sub);
 
+  Decl* operator()(ast::ParmVarDeclarationContext* ctx, bool isDefinition);
+
+  std::vector<Decl*> operator()(ast::FunctionParmsContext* ctx, bool isDefinition);
+
   std::pair<TypeExpr*, std::string> operator()(
     ast::DirectDeclaratorContext* ctx,
     TypeExpr* sub);
@@ -42,13 +46,27 @@ public:
 
   Expr* operator()(ast::AssignmentExpressionContext* ctx);
 
+  Expr* operator()(ast::PipepipeExpressionContext* ctx);
+
+  Expr* operator()(ast::AmpampExpressionContext* ctx);
+
+  Expr* operator()(ast::EqualExpressionContext* ctx);
+
+  Expr* operator()(ast::CompareExpressionContext* ctx);
+
   Expr* operator()(ast::AdditiveExpressionContext* ctx);
+
+  Expr* operator()(ast::MultiplicativeExpressionContext* ctx);
 
   Expr* operator()(ast::UnaryExpressionContext* ctx);
 
   Expr* operator()(ast::PostfixExpressionContext* ctx);
 
   Expr* operator()(ast::PrimaryExpressionContext* ctx);
+
+  Expr* operator()(ast::ParenExpressionContext* ctx);
+
+  Expr* operator()(ast::CallExpressionContext* ctx);
 
   Expr* operator()(ast::InitializerContext* ctx);
 
@@ -63,6 +81,10 @@ public:
   Stmt* operator()(ast::ExpressionStatementContext* ctx);
 
   Stmt* operator()(ast::JumpStatementContext* ctx);
+
+  Stmt* operator()(ast::IfStatementContext* ctx);
+
+  Stmt* operator()(ast::WhileStatementContext* ctx);
 
   //============================================================================
   // 声明

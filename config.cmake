@@ -9,7 +9,7 @@ set(TASK1_WITH "antlr")
 set(TASK1_LOG_LEVEL 3)
 
 # 实验二的完成方式："bison"或"antlr"
-set(TASK2_WITH "bison")
+set(TASK2_WITH "antlr")
 # 是否在实验二复活，ON或OFF
 set(TASK2_REVIVE ON)
 # 实验二的日志级别，级别从低到高为0-3

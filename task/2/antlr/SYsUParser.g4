@@ -4,13 +4,24 @@ options {
   tokenVocab=SYsULexer;
 }
 
+parenExpression
+    :   LeftParen expression RightParen
+    ;
+
+callExpression
+    :   Identifier LeftParen (assignmentExpression (Comma assignmentExpression)*)? RightParen
+    ;
+
 primaryExpression
     :   Identifier
     |   Constant
+    |   parenExpression
+    |   callExpression
     ;
 
 postfixExpression
-    :   primaryExpression  
+    :   primaryExpression
+    |   postfixExpression LeftBracket expression RightBracket
     ;
 
 unaryExpression
@@ -21,16 +32,34 @@ unaryExpression
     ;
 
 unaryOperator
-    :   Plus | Minus
+    :   Plus | Minus | Exclaim
+    ;
+
+multiplicativeExpression
+    :   unaryExpression ((Star|Slash|Percent) unaryExpression)*
     ;
 
 additiveExpression
-    :   unaryExpression ((Plus|Minus) unaryExpression)*
+    :   multiplicativeExpression ((Plus|Minus) multiplicativeExpression)*
+    ;
+compareExpression
+    :   additiveExpression ((Greater|Greaterequal|Less|Lessequal) additiveExpression)*
     ;
 
+equalExpression
+    :   compareExpression ((Equalequal|Exclaimequal) compareExpression)*
+    ;
+
+ampampExpression
+    :   equalExpression (Ampamp equalExpression)*
+    ;
+
+pipepipeExpression
+    :   ampampExpression (Pipepipe ampampExpression)*
+    ;
 
 assignmentExpression
-    :   additiveExpression
+    :   pipepipeExpression
     |   unaryExpression Equal assignmentExpression
     ;
 
@@ -56,14 +85,21 @@ initDeclaratorList
     ;
 
 initDeclarator
-    :   declarator (Equal initializer)?
+    :   declarator functionParms? (Equal initializer)?
     ;
 
 
 typeSpecifier
-    :   Int
+    :   Const? (Int|Void)
     ;
 
+parmVarDeclaration
+    :   declarationSpecifiers declarator?
+    ;
+
+functionParms
+    :   LeftParen (parmVarDeclaration (Comma parmVarDeclaration)*)? RightParen
+    ;
 
 declarator
     :   directDeclarator
@@ -92,6 +128,8 @@ statement
     :   compoundStatement
     |   expressionStatement
     |   jumpStatement
+    |   ifStatement
+    |   whileStatement
     ;
 
 compoundStatement
@@ -111,11 +149,17 @@ expressionStatement
     :   expression? Semi
     ;
 
-
-
 jumpStatement
-    :   (Return expression?)
-    Semi
+    :   ((Return expression?) | Break | Continue) Semi
+    ;
+
+ifStatement
+    :   If LeftParen expression RightParen statement
+        (Else statement)?
+    ;
+
+whileStatement
+    :   While LeftParen expression RightParen statement
     ;
 
 compilationUnit
@@ -132,6 +176,6 @@ externalDeclaration
     ;
 
 functionDefinition
-    : declarationSpecifiers directDeclarator LeftParen RightParen compoundStatement
+    : declarationSpecifiers directDeclarator functionParms compoundStatement
     ;
 
