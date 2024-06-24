@@ -10,6 +10,7 @@
 #include "Mem2Reg.hpp"
 #include "StaticCallCounter.hpp"
 #include "StaticCallCounterPrinter.hpp"
+#include "GlobalConstantReplace.hpp"
 
 void
 opt(llvm::Module& mod)
@@ -37,6 +38,7 @@ opt(llvm::Module& mod)
   // 添加优化pass到管理器中
   mpm.addPass(StaticCallCounterPrinter(llvm::errs()));
   mpm.addPass(Mem2Reg());
+  mpm.addPass(GlobalConstantReplace(llvm::errs()));
   mpm.addPass(ConstantFolding(llvm::errs()));
   // 运行优化pass
   mpm.run(mod, mam);
