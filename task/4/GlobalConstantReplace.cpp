@@ -7,8 +7,6 @@ using namespace llvm;
 PreservedAnalyses
 GlobalConstantReplace::run(Module& mod, ModuleAnalysisManager& mam)
 {
-    int instEraseCount = 0;
-
     for (auto &gv : mod.globals()) {
         if (!gv.hasInitializer())
             continue;
@@ -23,13 +21,10 @@ GlobalConstantReplace::run(Module& mod, ModuleAnalysisManager& mam)
             }
 
         if (!notLoad)
-            for (auto *u : gv.users()){
+            for (auto *u : gv.users())
                 u->replaceAllUsesWith(val);
-                instEraseCount++;
-            }
     }
 
-    mOut << "GlobalConstantReplace running...\nWill eliminate " << instEraseCount
-         << " instructions\n";
+    mOut << "GlobalConstantReplace running...\n";
     return PreservedAnalyses::all();
 }
