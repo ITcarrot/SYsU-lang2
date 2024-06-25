@@ -12,6 +12,7 @@
 #include "StaticCallCounterPrinter.hpp"
 #include "GlobalConstantReplace.hpp"
 #include "DeadCodeElimination.hpp"
+#include "DeadGlobalElimination.hpp"
 
 void
 opt(llvm::Module& mod)
@@ -41,6 +42,7 @@ opt(llvm::Module& mod)
   mpm.addPass(Mem2Reg());
   mpm.addPass(GlobalConstantReplace(llvm::errs()));
   mpm.addPass(ConstantFolding(llvm::errs()));
+  mpm.addPass(DeadGlobalElimination(llvm::errs()));
   mpm.addPass(DeadCodeElimination(llvm::errs()));
   // 运行优化pass
   mpm.run(mod, mam);
