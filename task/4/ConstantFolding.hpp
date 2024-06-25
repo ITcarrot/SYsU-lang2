@@ -17,4 +17,5 @@ public:
 
 private:
   llvm::raw_ostream& mOut;
+  static void push_up_add(llvm::Value* target, llvm::Value* var, bool neg, int64_t val);
 };

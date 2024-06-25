@@ -7,8 +7,7 @@ using namespace llvm;
 PreservedAnalyses
 GlobalConstantReplace::run(Module& mod, ModuleAnalysisManager& mam)
 {
-    std::vector<Instruction*> instToErase;
-    std::vector<GlobalVariable*> varToErase;
+    int instEraseCount = 0;
 
     for (auto &gv : mod.globals()) {
         if (!gv.hasInitializer())
@@ -23,20 +22,14 @@ GlobalConstantReplace::run(Module& mod, ModuleAnalysisManager& mam)
                 break;
             }
 
-        if (!notLoad){
+        if (!notLoad)
             for (auto *u : gv.users()){
                 u->replaceAllUsesWith(val);
-                instToErase.push_back(dyn_cast<Instruction>(u));
+                instEraseCount++;
             }
-            varToErase.push_back(&gv);
-        }
     }
-    for(auto i: instToErase)
-        i->removeFromParent();
-    for(auto v: varToErase)
-        v->removeFromParent();
 
-    mOut << "GlobalConstantReplace running...\nTo eliminate " << instToErase.size()
+    mOut << "GlobalConstantReplace running...\nWill eliminate " << instEraseCount
          << " instructions\n";
     return PreservedAnalyses::all();
 }
