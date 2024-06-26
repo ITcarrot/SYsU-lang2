@@ -49,19 +49,17 @@ opt(llvm::Module& mod)
   mpm.addPass(GlobalConstantReplace(llvm::errs()));
   mpm.addPass(DeadGlobalElimination(llvm::errs()));
 
-  mpm.addPass(ConstantFolding(llvm::errs()));
-  mpm.addPass(CommonExpressionElimination(llvm::errs()));
-  mpm.addPass(DeadCodeElimination(llvm::errs()));
+  for(int i = 0; i < 5; i++){
+    mpm.addPass(ConstantFolding(llvm::errs()));
+    mpm.addPass(CommonExpressionElimination(llvm::errs()));
+    mpm.addPass(DeadCodeElimination(llvm::errs()));
 
-  mpm.addPass(ConstantBranchReplace(llvm::errs()));
-  mpm.addPass(BasicBlockMerging(llvm::errs()));
-  mpm.addPass(FunctionInline(llvm::errs()));
-  
-  mpm.addPass(ConstantFolding(llvm::errs()));
-  mpm.addPass(CommonExpressionElimination(llvm::errs()));
-  mpm.addPass(DeadCodeElimination(llvm::errs()));
+    mpm.addPass(ConstantBranchReplace(llvm::errs()));
+    mpm.addPass(BasicBlockMerging(llvm::errs()));
+    mpm.addPass(FunctionInline(llvm::errs()));
+    mpm.addPass(InstructionPopping(llvm::errs()));
+  }
 
-  mpm.addPass(InstructionPopping(llvm::errs()));
   mpm.addPass(BitOperatorTransform(llvm::errs()));
   // 运行优化pass
   mpm.run(mod, mam);
