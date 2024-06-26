@@ -112,6 +112,21 @@ ConstantFolding::run(Module& mod, ModuleAnalysisManager& mam)
             }
           }
         }
+        if(auto cmpInst = dyn_cast<CmpInst>(&inst)){
+          auto constLhs = dyn_cast<ConstantInt>(cmpInst->getOperand(0));
+          auto constRhs = dyn_cast<ConstantInt>(cmpInst->getOperand(1));
+          if(constLhs && constRhs){
+            switch(cmpInst->getPredicate()){
+              case CmpInst::ICMP_SGT:
+                cmpInst->replaceAllUsesWith(ConstantInt::getSigned(
+                  cmpInst->getType(),
+                  constLhs->getSExtValue() > constRhs->getSExtValue()));
+                break;
+              default:
+                break;
+            }
+          }
+        }
       }
     }
   }

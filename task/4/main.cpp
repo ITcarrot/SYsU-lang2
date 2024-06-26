@@ -16,6 +16,7 @@
 #include "BitOperatorTransform.hpp"
 #include "CommonExpressionElimination.hpp"
 #include "InstructionPopping.hpp"
+#include "ConstantBranchReplace.hpp"
 
 void
 opt(llvm::Module& mod)
@@ -50,6 +51,7 @@ opt(llvm::Module& mod)
   mpm.addPass(DeadGlobalElimination(llvm::errs()));
   mpm.addPass(DeadCodeElimination(llvm::errs()));
   mpm.addPass(InstructionPopping(llvm::errs()));
+  mpm.addPass(ConstantBranchReplace(llvm::errs()));
   // 运行优化pass
   mpm.run(mod, mam);
 }
