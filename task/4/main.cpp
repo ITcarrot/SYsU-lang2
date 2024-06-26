@@ -17,6 +17,7 @@
 #include "CommonExpressionElimination.hpp"
 #include "InstructionPopping.hpp"
 #include "ConstantBranchReplace.hpp"
+#include "BasicBlockMerging.hpp"
 
 void
 opt(llvm::Module& mod)
@@ -50,8 +51,9 @@ opt(llvm::Module& mod)
   mpm.addPass(CommonExpressionElimination(llvm::errs()));
   mpm.addPass(DeadGlobalElimination(llvm::errs()));
   mpm.addPass(DeadCodeElimination(llvm::errs()));
-  mpm.addPass(InstructionPopping(llvm::errs()));
   mpm.addPass(ConstantBranchReplace(llvm::errs()));
+  mpm.addPass(BasicBlockMerging(llvm::errs()));
+  mpm.addPass(InstructionPopping(llvm::errs()));
   // 运行优化pass
   mpm.run(mod, mam);
 }
