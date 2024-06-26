@@ -19,6 +19,7 @@
 #include "ConstantBranchReplace.hpp"
 #include "BasicBlockMerging.hpp"
 #include "FunctionInline.hpp"
+#include "LoadStoreMerging.hpp"
 
 void
 opt(llvm::Module& mod)
@@ -52,6 +53,7 @@ opt(llvm::Module& mod)
   for(int i = 0; i < 5; i++){
     mpm.addPass(ConstantFolding(llvm::errs()));
     mpm.addPass(CommonExpressionElimination(llvm::errs()));
+    mpm.addPass(LoadStoreMerging(llvm::errs()));
     mpm.addPass(DeadCodeElimination(llvm::errs()));
 
     mpm.addPass(ConstantBranchReplace(llvm::errs()));
