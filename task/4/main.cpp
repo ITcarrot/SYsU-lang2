@@ -18,6 +18,7 @@
 #include "InstructionPopping.hpp"
 #include "ConstantBranchReplace.hpp"
 #include "BasicBlockMerging.hpp"
+#include "FunctionInline.hpp"
 
 void
 opt(llvm::Module& mod)
@@ -46,14 +47,22 @@ opt(llvm::Module& mod)
   mpm.addPass(StaticCallCounterPrinter(llvm::errs()));
   mpm.addPass(Mem2Reg());
   mpm.addPass(GlobalConstantReplace(llvm::errs()));
-  mpm.addPass(ConstantFolding(llvm::errs()));
-  mpm.addPass(BitOperatorTransform(llvm::errs()));
-  mpm.addPass(CommonExpressionElimination(llvm::errs()));
   mpm.addPass(DeadGlobalElimination(llvm::errs()));
+
+  mpm.addPass(ConstantFolding(llvm::errs()));
+  mpm.addPass(CommonExpressionElimination(llvm::errs()));
   mpm.addPass(DeadCodeElimination(llvm::errs()));
+
   mpm.addPass(ConstantBranchReplace(llvm::errs()));
   mpm.addPass(BasicBlockMerging(llvm::errs()));
+  mpm.addPass(FunctionInline(llvm::errs()));
+  
+  mpm.addPass(ConstantFolding(llvm::errs()));
+  mpm.addPass(CommonExpressionElimination(llvm::errs()));
+  mpm.addPass(DeadCodeElimination(llvm::errs()));
+
   mpm.addPass(InstructionPopping(llvm::errs()));
+  mpm.addPass(BitOperatorTransform(llvm::errs()));
   // 运行优化pass
   mpm.run(mod, mam);
 }
