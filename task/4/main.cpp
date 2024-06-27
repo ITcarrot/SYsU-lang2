@@ -48,9 +48,10 @@ opt(llvm::Module& mod)
   mpm.addPass(StaticCallCounterPrinter(llvm::errs()));
   mpm.addPass(Mem2Reg());
   mpm.addPass(GlobalConstantReplace(llvm::errs()));
-  mpm.addPass(DeadGlobalElimination(llvm::errs()));
 
   for(int i = 0; i < 5; i++){
+    mpm.addPass(DeadGlobalElimination(llvm::errs()));
+
     mpm.addPass(ConstantFolding(llvm::errs()));
     mpm.addPass(CommonExpressionElimination(llvm::errs()));
     mpm.addPass(LoadStoreMerging(llvm::errs()));

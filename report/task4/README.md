@@ -43,7 +43,8 @@
 - 取模：对于负数有$x\\%y=\sim ((\sim x+1)\\&(y-1))+1=(-1\\oplus(((-1\\oplus x)+1)\\&(y-1)))+1$，将正负号当式子中的-1用
 
 ### 公共表达式消除
-- 使用multimap记录所有二元表达式和GEP
+- 使用multimap记录所有二元表达式、GEP和函数调用
+- 定义cleanFunction为没有访存且只调用自己或其他cleanFunction的函数，只消除调用cleanFunction的指令
 - 使用支配树判断指令的支配关系
 - 所有公共表达式只保留支配者
 
